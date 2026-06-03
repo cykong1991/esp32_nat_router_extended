@@ -49,6 +49,11 @@ jobs:
       - name: Minify HTML files
         run: python .github/workflows/shrinkHTML.py
         shell: sh
+      - name: Remove incompatible sdkconfig
+        run: |
+          rm -f sdkconfig.esp32-c3
+          # 也可以删除旧的编译缓存以确保是一次全新的构建
+          rm -rf .pio
       - name: Build ESP32 C3 firmware
         run: platformio run -e esp32-c3
       - name: Build one binary for ESP32 C3
