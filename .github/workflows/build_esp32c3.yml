@@ -1,0 +1,35 @@
+name: Build ESP32-C3 Firmware
+
+on:
+  # 当有代码推送到 master 或 main 分支时触发
+  push:
+    branches: [ master, main ]
+  # 允许你从 GitHub Actions 页面手动触发
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: espressif/idf:latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+
+      - name: Build for ESP32-C3
+        run: |
+          # 这步是关键，用于设置目标芯片为 ESP32-C3
+          idf.py set-target esp32c3
+          idf.py build
+
+      - name: Upload Firmware
+        uses: actions/upload-artifact@v4
+        with:
+          # 上传的压缩包名称
+          name: esp32c3-nat-router-firmware
+          # 需要打包上传的文件路径
+          path: |
+            build/bootloader/bootloader.bin
+            build/partition_table/partition-table.bin
+            build/esp32_nat_router_extended.bin
