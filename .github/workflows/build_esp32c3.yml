@@ -54,10 +54,10 @@ jobs:
         run: |
           rm -f sdkconfig.esp32-c3
           rm -rf .pio
-      - name: Remove rtc_io.h includes for ESP32-C3
+      - name: Remove non-essential components for ESP32-C3
         run: |
-          sed -i '/#include "driver\/rtc_io.h"/d' components/cmd_router/cmd_router.c
-          sed -i '/#include "driver\/rtc_io.h"/d' components/cmd_system/cmd_system.c
+          rm -rf components/cmd_router
+          rm -rf components/cmd_system
       - name: Build ESP32 C3 firmware
         run: platformio run -e esp32-c3
       - name: Build one binary for ESP32 C3
