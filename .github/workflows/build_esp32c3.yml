@@ -1,4 +1,5 @@
 name: Build ESP32C3 Firmware
+
 on: [push]
 
 jobs:
@@ -57,11 +58,57 @@ jobs:
         run: platformio run -e esp32-c3
       - name: Build one binary for ESP32 C3
         run: |
+          folder=.pio/build/esp32-c3
+          chip=esp32c3
+          mkdir -p release/ota/ESP32-C3/
+          cp $folder/firmware.bin release/ota/ESP32-C3/firmware.bin 
+          mv $folder/firmware.bin $folder/${chip}nat_extended_v${{ env.VERSION }}.bin
+          esptool.py --chip $chip merge_bin -o $folder/${chip}nat_extended_full_v${{ env.VERSION }}.bin --flash_freq keep --flash_size keep 0x0 $folder/bootloader.bin 0x10000 $folder/${chip}nat_extended_v${{ env.VERSION }}.bin 0x8000 $folder/partitions.bin
+          mkdir -p release/
+          zip -j release/${chip}nat_extended_update_v${{ env.VERSION }}.zip $folder/${chip}nat_extended_v${{ env.VERSION }}.bin
+          zip -j release/${chip}nat_extended_full_v${{ env.VERSION }}.zip $folder/${chip}nat_extended_full_v${{ env.VERSION }}.bin
+
       - name: Create draft release
-        # ...（保持原来内容）
+        uses: "marvinpinto/action-automatic-releases@latest"
+        if: github.ref == 'refs/heads/master'
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          prerelease: false
+          draft: true
+          automatic_release_tag: v${{ env.VERSION }}
+          title: v${{ env.VERSION }}
+          files: |
+            release/*.zip
+      - name: Create changelog from version file
+        if: github.ref == 'refs/heads/master'
+        run: tail -n +3 version | sed 's/^/- /' > changelog           
+      - name: Set changelog
+        if: github.ref == 'refs/heads/master'
+        uses: ncipollo/release-action@v1
+        with:
+          allowUpdates: true
+          name: v${{ env.VERSION }}
+          tag: v${{ env.VERSION }}
+          draft: true
+          bodyFile: "changelog"             
+      - name: Set dev branch variable
+        if: github.ref == 'refs/heads/dev'
+        run: |
+          echo "RELEASE_BRANCH=releases-staging" >> $GITHUB_ENV  
+      - name: Set master branch variable
+        if: github.ref == 'refs/heads/master'
+        run: |
+            echo "RELEASE_BRANCH=releases-production" >> $GITHUB_ENV                       
+      - name: Deploy to Github Pages
+        if: github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/master'
+        uses: JamesIves/github-pages-deploy-action@v4        
+        with:
+          folder: release/ota/            
+          branch: ${{env.RELEASE_BRANCH}}
       - name: Upload firmwares to build
         uses: actions/upload-artifact@v4
         with:
             name: firmwares
             path: |
-               release/*.zip
+               release/*.zip      
+ 
