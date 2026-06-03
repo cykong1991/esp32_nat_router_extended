@@ -577,7 +577,7 @@ void wifi_init(const char *ssid, const char *passwd, const char *static_ip, cons
     if (isLowerBandwith == 1)
     {
         ESP_LOGI(TAG, "Setting the bandwith to 40 MHz");
-        esp_err_t err = esp_wifi_set_bandwidth(ESP_IF_WIFI_STA, WIFI_BW_HT40);
+        esp_err_t err = esp_wifi_set_bandwidth(WIFI_IF_STA, WIFI_BW_HT40);
         if (err == ESP_ERR_INVALID_ARG)
         {
             ESP_LOGE(TAG, "Setting the bandwith to 40 MHz failed. Interface doesn't support it.");
@@ -628,8 +628,8 @@ void wifi_init(const char *ssid, const char *passwd, const char *static_ip, cons
             strlcpy((char *)wifi_config.sta.password, passwd, sizeof(wifi_config.sta.password));
         }
         ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_APSTA));
-        ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_AP, &ap_config));
-        ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config));
+        ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_AP, &ap_config));
+        ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_STA, &wifi_config));
 
         if (isWpaEnterprise)
         {
@@ -640,7 +640,7 @@ void wifi_init(const char *ssid, const char *passwd, const char *static_ip, cons
     else
     {
         ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_AP));
-        ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_AP, &ap_config));
+        ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_AP, &ap_config));
     }
     esp_ip_addr_t dnsserver;
     char *defaultIP = getDefaultIPByNetmask();
