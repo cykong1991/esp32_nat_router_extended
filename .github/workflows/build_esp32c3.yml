@@ -56,6 +56,10 @@ jobs:
           rm -rf .pio
       - name: Build ESP32 C3 firmware
         run: platformio run -e esp32-c3
+      - name: Fix missing rtc_io.h for ESP32-C3
+        run: |
+          sed -i 's|#include "driver/rtc_io.h"|// #include "driver/rtc_io.h"|g' components/cmd_router/cmd_router.c
+          sed -i 's|#include "driver/rtc_io.h"|// #include "driver/rtc_io.h"|g' components/cmd_system/cmd_system.c
       - name: Build one binary for ESP32 C3
         run: |
           folder=.pio/build/esp32-c3
