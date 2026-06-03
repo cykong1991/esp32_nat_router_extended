@@ -11,6 +11,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
+          submodules: 'recursive'
       - uses: actions/cache@v3
         with:
           path: |
@@ -50,14 +51,16 @@ jobs:
       - name: Minify HTML files
         run: python .github/workflows/shrinkHTML.py
         shell: sh
-      - name: Remove incompatible sdkconfig
+      - name: Disable conflicting components for ESP32-C3
         run: |
-          rm -f sdkconfig.esp32-c3
-          rm -rf .pio
-      - name: Remove non-essential components for ESP32-C3
-        run: |
-          rm -rf components/cmd_router
-          rm -rf components/cmd_system
+          # 1. 创建备份
+          cp components/cmd_router/cmd_router.c components/cmd_router/cmd_router.c.bak
+          cp components/cmd_system/cmd_system.c components/cmd_system/cmd_system.c.bak
+          # 2. 注释掉引发冲突的头文件包含
+          sed -i 's|#include "driver/rtc_io.h"|// #include "driver/rtc_io.h"|' components/cmd_router/cmd_router.c
+          sed -i 's|#include "driver/uart.h"|// #include "driver/uart.h"|' components/cmd_router/cmd_router.c
+          sed -i 's|#include "driver/rtc_io.h"|// #include "driver/rtc_io.h"|' components/cmd_system/cmd_system.c
+          sed -i 's|#include "driver/uart.h"|// #include "driver/uart.h"|' components/cmd_system/cmd_system.c
       - name: Build ESP32 C3 firmware
         run: platformio run -e esp32-c3
       - name: Build one binary for ESP32 C3
