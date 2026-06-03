@@ -53,7 +53,6 @@ jobs:
         run: |
           rm -f sdkconfig.esp32-c3
           rm -rf .pio
-      # 🔧 修复缺失的 rtc_io.h 头文件
       - name: Remove rtc_io.h includes for ESP32-C3
         run: |
           sed -i '/#include "driver\/rtc_io.h"/d' components/cmd_router/cmd_router.c
@@ -62,7 +61,6 @@ jobs:
         run: platformio run -e esp32-c3
       - name: Build one binary for ESP32 C3
         run: |
-          # ...（保持你原来的内容不变）
       - name: Create draft release
         # ...（保持原来内容）
       - name: Upload firmwares to build
