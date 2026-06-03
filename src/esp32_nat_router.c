@@ -577,7 +577,7 @@ void wifi_init(const char *ssid, const char *passwd, const char *static_ip, cons
     if (isLowerBandwith == 1)
     {
         ESP_LOGI(TAG, "Setting the bandwith to 40 MHz");
-        esp_err_t err = esp_wifi_set_bandwidth(WIFI_IF_STA, WIFI_BW_HT20);
+        esp_err_t err = esp_wifi_set_bandwidth(WIFI_IF_STA, WIFI_BW20);
         if (err == ESP_ERR_INVALID_ARG)
         {
             ESP_LOGE(TAG, "Setting the bandwith to 40 MHz failed. Interface doesn't support it.");
